@@ -23,3 +23,4 @@ router.post('/:id/subjects/:examSubjectId/marks', authorize('ADMIN', 'TEACHER'),
 router.get('/:id/students/:studentId/report-card', authorize('ADMIN', 'TEACHER'), examController.getReportCard);
 
 module.exports = router;
+

@@ -13,6 +13,8 @@ const academicRoutes = require('./routes/academicRoutes');
 const attendanceRoutes = require('./routes/attendanceRoutes');
 const examRoutes = require('./routes/examRoutes');
 const feeRoutes = require('./routes/feeRoutes');
+const guardianRoutes = require('./routes/guardianRoutes');
+const reportRoutes = require('./routes/reportRoutes');
 
 const app = express();
 
@@ -40,6 +42,8 @@ app.use('/api/academic', academicRoutes);
 app.use('/api/attendance', attendanceRoutes);
 app.use('/api/exams', examRoutes);
 app.use('/api/fees', feeRoutes);
+app.use('/api/guardian', guardianRoutes);
+app.use('/api/reports', reportRoutes);
 
 // Catch-all 404 handler for undefined API routes
 app.use('/api/*', (req, res) => {
