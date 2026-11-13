@@ -14,3 +14,4 @@ router.get('/records', authorize('ADMIN', 'TEACHER'), attendanceController.getRe
 router.get('/student/:studentId/summary', authorize('ADMIN', 'TEACHER'), attendanceController.getStudentSummary);
 
 module.exports = router;
+

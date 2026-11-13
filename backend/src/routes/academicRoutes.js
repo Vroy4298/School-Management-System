@@ -38,3 +38,4 @@ router.put('/students/:id', authorize('ADMIN'), academicController.updateStudent
 router.delete('/students/:id', authorize('ADMIN'), academicController.deleteStudent);
 
 module.exports = router;
+
