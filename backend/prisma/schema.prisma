@@ -336,3 +336,4 @@ model AuditLog {
   @@index([userId])
   @@map("audit_logs")
 }
+

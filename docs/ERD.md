@@ -211,3 +211,4 @@ erDiagram
 3. **Exam Subject Uniqueness**: `@@unique([examinationId, subjectId])` prevents duplicate subject schedules within an exam.
 4. **Exam Result Uniqueness**: `@@unique([examinationId, studentId, examSubjectId])` guarantees exact mark attribution per student per subject exam.
 5. **Fee Ledger Reconciliation**: `FeePayment.amount` totals per `invoiceId` must strictly equal `FeeInvoice.amount` before transitioning status to `PAID`, with updates prevented from exceeding outstanding balance.
+
