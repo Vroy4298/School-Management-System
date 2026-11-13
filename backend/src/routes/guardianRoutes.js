@@ -19,3 +19,4 @@ router.get('/students/:studentId/fees', guardianController.getStudentFees);
 router.post('/invoices/:invoiceId/pay', guardianController.payInvoice);
 
 module.exports = router;
+

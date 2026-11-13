@@ -35,7 +35,7 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Mount Routes
+// Mount API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/audit', auditRoutes);
 app.use('/api/academic', academicRoutes);
@@ -44,6 +44,21 @@ app.use('/api/exams', examRoutes);
 app.use('/api/fees', feeRoutes);
 app.use('/api/guardian', guardianRoutes);
 app.use('/api/reports', reportRoutes);
+
+// Serve Frontend Static Build if available
+const path = require('path');
+const frontendDist = path.join(__dirname, '../../frontend/dist');
+const fs = require('fs');
+
+if (fs.existsSync(frontendDist)) {
+  app.use(express.static(frontendDist));
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api')) {
+      return next();
+    }
+    res.sendFile(path.join(frontendDist, 'index.html'));
+  });
+}
 
 // Catch-all 404 handler for undefined API routes
 app.use('/api/*', (req, res) => {

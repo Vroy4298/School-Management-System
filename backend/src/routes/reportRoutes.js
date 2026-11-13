@@ -11,3 +11,4 @@ router.get('/class-attendance', reportController.getClassWiseAttendance);
 router.get('/exam-performance/:examinationId', reportController.getExamPerformance);
 
 module.exports = router;
+
