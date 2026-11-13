@@ -9,6 +9,8 @@ const { errorResponse } = require('./utils/response');
 // Import route modules
 const authRoutes = require('./routes/authRoutes');
 const auditRoutes = require('./routes/auditRoutes');
+const academicRoutes = require('./routes/academicRoutes');
+const attendanceRoutes = require('./routes/attendanceRoutes');
 
 const app = express();
 
@@ -32,6 +34,8 @@ app.get('/api/health', (req, res) => {
 // Mount Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/audit', auditRoutes);
+app.use('/api/academic', academicRoutes);
+app.use('/api/attendance', attendanceRoutes);
 
 // Catch-all 404 handler for undefined API routes
 app.use('/api/*', (req, res) => {
