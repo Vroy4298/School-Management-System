@@ -1,0 +1,338 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  ADMIN
+  TEACHER
+  GUARDIAN
+}
+
+enum AttendanceSession {
+  MORNING
+  AFTERNOON
+  FULL_DAY
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  LATE
+}
+
+enum InvoiceStatus {
+  PENDING
+  PARTIALLY_PAID
+  PAID
+}
+
+model User {
+  id           String    @id @default(uuid())
+  email        String    @unique
+  passwordHash String
+  role         Role
+  name         String
+  phone        String?
+  isActive     Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  teacherProfile  Teacher?
+  guardianProfile Guardian?
+  auditLogs       AuditLog[]
+
+  @@map("users")
+}
+
+model Teacher {
+  id            String   @id @default(uuid())
+  userId        String   @unique
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  employeeId    String   @unique
+  name          String
+  email         String
+  phone         String?
+  qualification String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  assignments       TeacherAssignment[]
+  attendanceMarked  Attendance[]
+
+  @@map("teachers")
+}
+
+model Guardian {
+  id           String    @id @default(uuid())
+  userId       String    @unique
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name         String
+  email        String
+  phone        String
+  address      String?
+  relationship String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  students Student[]
+
+  @@map("guardians")
+}
+
+model Class {
+  id           String   @id @default(uuid())
+  name         String   @unique
+  numericGrade Int
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  sections           Section[]
+  students           Student[]
+  feeStructures      FeeStructure[]
+  teacherAssignments TeacherAssignment[]
+  examinations       Examination[]
+
+  @@map("classes")
+}
+
+model Section {
+  id        String   @id @default(uuid())
+  name      String
+  classId   String
+  class     Class    @relation(fields: [classId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  students           Student[]
+  teacherAssignments TeacherAssignment[]
+  attendanceRecords  Attendance[]
+
+  @@unique([classId, name])
+  @@map("sections")
+}
+
+model Subject {
+  id          String   @id @default(uuid())
+  name        String
+  code        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  teacherAssignments TeacherAssignment[]
+  examSubjects       ExamSubject[]
+
+  @@map("subjects")
+}
+
+model TeacherAssignment {
+  id           String   @id @default(uuid())
+  teacherId    String
+  teacher      Teacher  @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  classId      String
+  class        Class    @relation(fields: [classId], references: [id], onDelete: Cascade)
+  sectionId    String?
+  section      Section? @relation(fields: [sectionId], references: [id], onDelete: SetNull)
+  subjectId    String?
+  subject      Subject? @relation(fields: [subjectId], references: [id], onDelete: SetNull)
+  academicYear String   @default("2026-2027")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([teacherId, classId, sectionId, subjectId, academicYear])
+  @@map("teacher_assignments")
+}
+
+model Student {
+  id              String    @id @default(uuid())
+  admissionNumber String    @unique
+  firstName       String
+  lastName        String
+  dob             DateTime
+  gender          String
+  address         String?
+  classId         String
+  class           Class     @relation(fields: [classId], references: [id])
+  sectionId       String
+  section         Section   @relation(fields: [sectionId], references: [id])
+  guardianId      String?
+  guardian        Guardian? @relation(fields: [guardianId], references: [id], onDelete: SetNull)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  attendance  Attendance[]
+  examResults ExamResult[]
+  feeInvoices FeeInvoice[]
+  feePayments FeePayment[]
+
+  @@map("students")
+}
+
+model Attendance {
+  id         String            @id @default(uuid())
+  studentId  String
+  student    Student           @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  classId    String
+  sectionId  String
+  section    Section           @relation(fields: [sectionId], references: [id])
+  date       DateTime          @db.Date
+  session    AttendanceSession @default(FULL_DAY)
+  status     AttendanceStatus  @default(PRESENT)
+  remarks    String?
+  markedById String?
+  markedBy   Teacher?          @relation(fields: [markedById], references: [id], onDelete: SetNull)
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
+
+  @@unique([studentId, date, session])
+  @@index([classId, sectionId, date])
+  @@map("attendance")
+}
+
+model Examination {
+  id           String   @id @default(uuid())
+  name         String
+  academicYear String   @default("2026-2027")
+  term         String
+  classId      String
+  class        Class    @relation(fields: [classId], references: [id], onDelete: Cascade)
+  startDate    DateTime
+  endDate      DateTime
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  examSubjects ExamSubject[]
+  examResults  ExamResult[]
+
+  @@map("examinations")
+}
+
+model ExamSubject {
+  id            String      @id @default(uuid())
+  examinationId String
+  examination   Examination @relation(fields: [examinationId], references: [id], onDelete: Cascade)
+  subjectId     String
+  subject       Subject     @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  maxMarks      Float       @default(100)
+  passingMarks  Float       @default(40)
+  examDate      DateTime?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  examResults ExamResult[]
+
+  @@unique([examinationId, subjectId])
+  @@map("exam_subjects")
+}
+
+model GradingRule {
+  id            String   @id @default(uuid())
+  grade         String   @unique
+  minPercentage Float
+  maxPercentage Float
+  gradePoint    Float
+  description   String?
+  isPassing     Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("grading_rules")
+}
+
+model ExamResult {
+  id            String      @id @default(uuid())
+  examinationId String
+  examination   Examination @relation(fields: [examinationId], references: [id], onDelete: Cascade)
+  examSubjectId String
+  examSubject   ExamSubject @relation(fields: [examSubjectId], references: [id], onDelete: Cascade)
+  studentId     String
+  student       Student     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  marksObtained Float
+  isAbsent      Boolean     @default(false)
+  remarks       String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@unique([examinationId, studentId, examSubjectId])
+  @@index([studentId, examinationId])
+  @@map("exam_results")
+}
+
+model FeeStructure {
+  id           String   @id @default(uuid())
+  title        String
+  classId      String
+  class        Class    @relation(fields: [classId], references: [id], onDelete: Cascade)
+  academicYear String   @default("2026-2027")
+  amount       Float
+  dueDate      DateTime
+  description  String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  invoices FeeInvoice[]
+
+  @@map("fee_structures")
+}
+
+model FeeInvoice {
+  id             String        @id @default(uuid())
+  invoiceNumber  String        @unique
+  studentId      String
+  student        Student       @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  feeStructureId String?
+  feeStructure   FeeStructure? @relation(fields: [feeStructureId], references: [id], onDelete: SetNull)
+  title          String
+  amount         Float
+  dueDate        DateTime
+  status         InvoiceStatus @default(PENDING)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  payments FeePayment[]
+
+  @@index([studentId, status])
+  @@map("fee_invoices")
+}
+
+model FeePayment {
+  id             String     @id @default(uuid())
+  invoiceId      String
+  invoice        FeeInvoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  studentId      String
+  student        Student    @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  amount         Float
+  paymentDate    DateTime   @default(now())
+  paymentMethod  String
+  transactionRef String     @unique
+  recordedById   String?
+  notes          String?
+  createdAt      DateTime   @default(now())
+
+  @@index([invoiceId])
+  @@index([studentId])
+  @@map("fee_payments")
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userRole  String?
+  action    String
+  entity    String
+  entityId  String?
+  details   Json?
+  ipAddress String?
+  createdAt DateTime @default(now())
+
+  @@index([entity, entityId])
+  @@index([userId])
+  @@map("audit_logs")
+}
