@@ -83,3 +83,4 @@ Test Files  4 passed (4)
 | **Scenario 3** | Exam results calculated on backend from configured grading scale; report card generated | **PASSED** | `tests/exam_fee.test.js` |
 | **Scenario 4** | Guardian can only access linked student; cross-student records blocked with 403 Forbidden | **PASSED** | `tests/guardian_reports.test.js` |
 | **Scenario 5** | Fee partial payment, remaining payment, overpayment rejection, and ledger reconciliation | **PASSED** | `tests/exam_fee.test.js` |
+

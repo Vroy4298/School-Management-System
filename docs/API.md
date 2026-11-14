@@ -213,3 +213,4 @@ Authorization: Bearer <jwt_token>
 - `GET /api/reports/class-attendance` - Class-wise attendance breakdown (Admin only).
 - `GET /api/reports/exam-performance/:examinationId` - Subject pass rates and grade statistics (Admin only).
 - `GET /api/audit` - Paginated audit logs with action, entity, user, details, and IP address (Admin only).
+

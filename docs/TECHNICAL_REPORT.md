@@ -110,3 +110,4 @@ Automated testing is configured using **Vitest** and **Supertest**, executing en
 - **Test Suite 3 (`exam_fee.test.js`)**: 9 tests verifying Scenario 3 (Grade and report card calculation) and Scenario 5 (Fee invoices, partial payment, balance verification, overpayment rejection, and ledger reconciliation).
 - **Test Suite 4 (`guardian_reports.test.js`)**: 11 tests verifying Scenario 4 (Guardian ownership and cross-student data denial) and admin reporting metrics.
 - **Total Coverage**: 43 automated integration tests with 100% pass rate.
+

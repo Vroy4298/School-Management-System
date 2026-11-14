@@ -238,3 +238,4 @@ Detailed test execution logs are available in [docs/TEST_RESULTS.md](file:///e:/
 1. **Payment Gateway**: Financial settlements use a simulated transaction engine for assessment purposes. Integrating real gateways (Stripe, Razorpay) would replace the simulated controller with webhook listeners.
 2. **Email Notifications**: Currently, password credentials and notifications are recorded via the audit trail rather than dispatched via SMTP (SendGrid, AWS SES).
 3. **Document Attachments**: Student medical documents or physical fee receipts are stored as text remarks rather than binary uploads in S3/Cloudinary.
+

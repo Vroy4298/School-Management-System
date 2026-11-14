@@ -18,3 +18,4 @@ const Layout = ({ title }) => {
 };
 
 export default Layout;
+
